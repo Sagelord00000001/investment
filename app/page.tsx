@@ -8,6 +8,8 @@ import { Shield, Lock, Settings, TrendingUp, ArrowRight, Users, BarChart3, Targe
 import { AuthForm } from '@/components/auth/auth-form'
 import { useAuth } from '@/components/auth/auth-provider'
 import { useRouter } from 'next/navigation'
+import PriceWidget from '@/components/PriceWidget'
+import CryptoTable from '@/components/CryptoTable'
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false)
@@ -158,6 +160,28 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Price Widgets */}
+      <section className="relative z-10 py-16 bg-black/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PriceWidget coin="bitcoin" />
+        </div>
+      </section>
+            <section className="relative z-10 py-16 bg-black/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PriceWidget coin="ethereum" />
+        </div>
+      </section>
+
+      {/* Cryptocurrency Table */}
+      <section className="py-12 bg-gray-50 dark:bg-gray-900">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          Cryptocurrency Prices
+        </h1>
+        <CryptoTable />
+      </div>
       </section>
 
       {/* Features Section */}
