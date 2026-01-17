@@ -7,9 +7,8 @@ import { AuthProvider } from '@/components/auth/auth-provider'
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "InvestPro - Professional Investment Platform",
-  description: "Professional investment platform with institutional-grade security, real-time analytics, and advanced portfolio management tools.",
-    generator: 'v0.dev'
+  title: "Megatrade - Professional Investment Platform",
+  description: "Professional investment platform with institutional-grade security, real-time analytics, and advanced portfolio management tools."
 }
 
 export default function RootLayout({

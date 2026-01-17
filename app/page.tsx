@@ -10,17 +10,18 @@ import { useAuth } from '@/components/auth/auth-provider'
 import { useRouter } from 'next/navigation'
 import PriceWidget from '@/components/PriceWidget'
 import CryptoTable from '@/components/CryptoTable'
+import Image from "next/image";
 
 export default function LandingPage() {
   const [showAuth, setShowAuth] = useState(false)
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (user && !loading) {
-      router.push('/dashboard')
-    }
-  }, [user, loading, router])
+  // useEffect(() => {
+  //   if (user && !loading) {
+  //     router.push('/dashboard')
+  //   }
+  // }, [user, loading, router])
 
   if (showAuth) {
     return <AuthForm onSuccess={() => setShowAuth(false)} />
@@ -64,18 +65,24 @@ export default function LandingPage() {
       <nav className="relative z-20 border-b border-white/10 backdrop-blur-xl bg-black/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
-                <TrendingUp className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 x rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
+                {/* <TrendingUp className="w-6 h-6 text-white" /> */}
+                <Image
+                  src="/logo.jpeg"
+                  alt="Mega Trade Logo"
+                  width={32}
+                  height={32}
+                />
               </div>
               <div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  InvestPro
+                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                  Mega Trade
                 </span>
                 <div className="text-xs text-gray-400">Smart Investment Platform</div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <Button 
                 variant="ghost" 
                 className="text-white hover:bg-white/10 border border-white/20"
@@ -350,12 +357,18 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12">
             <div>
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+                  {/* <TrendingUp className="w-6 h-6 text-white" /> */}
+                  <Image
+                  src="/logo.jpeg"
+                  alt="Mega Trade Logo"
+                  width={32}
+                  height={32}
+                />
                 </div>
                 <div>
                   <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                    InvestPro
+                    Mega Trade
                   </span>
                   <div className="text-xs text-gray-400">Smart Investment Platform</div>
                 </div>
@@ -398,7 +411,7 @@ export default function LandingPage() {
           
           <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400">
-              © 2024 InvestPro. All rights reserved. Licensed investment platform.
+              © 2024 Mega Trade. All rights reserved. Licensed investment platform.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="#" className="text-gray-400 hover:text-white transition-colors">Terms</Link>
