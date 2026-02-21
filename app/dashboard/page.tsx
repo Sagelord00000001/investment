@@ -136,7 +136,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground font-bold">
             <TrendingUp className="w-6 h-6" />
           </div>
-          <span className="text-lg font-semibold text-foreground">InvestPro</span>
+          <span className="text-lg font-semibold text-foreground">Mega Trade</span>
         </div>
         
         <div className="flex-1 overflow-y-auto px-4 py-6">
@@ -150,7 +150,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground font-bold">
             <TrendingUp className="w-5 h-5" />
           </div>
-          <span className="text-base font-semibold text-foreground">InvestPro</span>
+          <span className="text-base font-semibold text-foreground">Mega Trade</span>
         </div>
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
@@ -187,7 +187,7 @@ export default function Dashboard() {
           </div>
 
           {/* Primary Balance Card */}
-          <Card className="mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <Card className="mb-8 bg-linear-to-br from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="p-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                 <div>

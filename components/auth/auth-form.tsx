@@ -96,7 +96,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">Welcome to InvestPro</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">Welcome to Mega Trade</CardTitle>
           <CardDescription className="text-gray-300">
             Sign in to your account or create a new one
           </CardDescription>
@@ -169,7 +169,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
+                  className="w-full bg-linear-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Signing in...' : 'Sign In'}
@@ -215,7 +215,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
+                  className="w-full bg-linear-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Creating account...' : 'Create Account'}
