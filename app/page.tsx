@@ -17,11 +17,11 @@ export default function LandingPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  // useEffect(() => {
-  //   if (user && !loading) {
-  //     router.push('/dashboard')
-  //   }
-  // }, [user, loading, router])
+  useEffect(() => {
+    if (user && !loading) {
+      router.push('/dashboard')
+    }
+  }, [user, loading, router])
 
   if (showAuth) {
     return <AuthForm onSuccess={() => setShowAuth(false)} />

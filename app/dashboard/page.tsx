@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { TrendingUp, DollarSign, Calendar, Target, Plus, Home, Wallet, CreditCard, Settings, Shield, LogOut, Menu, X } from 'lucide-react'
+import { TrendingUp, DollarSign, PieChart, Plus, Home, TrendingDown, Settings, Shield, LogOut, Menu, ArrowUpRight, ArrowDownLeft } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from '@/components/auth/auth-provider'
 import { supabase } from '@/lib/supabase'
@@ -16,17 +16,19 @@ export default function Dashboard() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [investments, setInvestments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, loading: authLoading, signOut } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/')
       return
     }
     
-    fetchInvestments()
-  }, [user, router])
+    if (user) {
+      fetchInvestments()
+    }
+  }, [user, authLoading, router])
 
   const fetchInvestments = async () => {
     if (!user) return
@@ -54,203 +56,225 @@ export default function Dashboard() {
 
   if (!user || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground text-xl font-medium">Loading dashboard...</div>
       </div>
     )
   }
 
   const totalInvested = investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
   const activeInvestments = investments.filter(inv => inv.status === 'active').length
-  const lastActivity = investments.length > 0 ? new Date(investments[0].created_at).toLocaleDateString() : 'No activity'
+  const avgReturn = investments.length > 0 
+    ? (investments.reduce((sum, inv) => sum + (inv.returns_percentage || 0), 0) / investments.length).toFixed(2)
+    : '0'
 
   const stats = [
     {
-      title: "Total Invested",
-      value: `$${totalInvested.toLocaleString()}`,
+      title: "Total Balance",
+      value: `$${Number(profile.balance).toLocaleString()}`,
       icon: DollarSign,
-      color: "from-green-400 to-emerald-500"
+      change: "+12.5%"
     },
     {
-      title: "Active Investments",
-      value: activeInvestments.toString(),
-      icon: Calendar,
-      color: "from-blue-400 to-cyan-500"
+      title: "Invested Amount",
+      value: `$${totalInvested.toLocaleString()}`,
+      icon: TrendingUp,
+      change: `${activeInvestments} active`
     },
     {
-      title: "Plan Type",
-      value: profile.role === 'admin' ? 'Administrator' : 'Premium',
-      icon: Target,
-      color: "from-purple-400 to-pink-500"
+      title: "Average Return",
+      value: `${avgReturn}%`,
+      icon: PieChart,
+      change: "On investments"
     }
   ]
 
   const NavItems = () => (
-    <>
-      <Link href="/dashboard" className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white/10 text-white">
+    <nav className="flex flex-col gap-2">
+      <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-medium transition-all">
         <Home className="w-5 h-5" />
         <span>Dashboard</span>
       </Link>
-      <Link href="/invest" className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+      <Link href="/invest" className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted transition-all">
         <TrendingUp className="w-5 h-5" />
-        <span>Invest</span>
+        <span>Make Investment</span>
       </Link>
-      <Link href="/withdraw" className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all">
-        <Wallet className="w-5 h-5" />
-        <span>Withdraw</span>
+      <Link href="/withdraw" className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted transition-all">
+        <TrendingDown className="w-5 h-5" />
+        <span>Withdraw Funds</span>
       </Link>
-      <Link href="/settings" className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+      <Link href="/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted transition-all">
         <Settings className="w-5 h-5" />
         <span>Settings</span>
       </Link>
       
       {profile.role === 'admin' && (
-        <Link href="/admin" className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all">
+        <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-muted transition-all">
           <Shield className="w-5 h-5" />
           <span>Admin Panel</span>
         </Link>
       )}
       
-      <Button 
-        onClick={handleSignOut}
-        className="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all bg-transparent border-0 justify-start w-full"
-      >
-        <LogOut className="w-5 h-5" />
-        <span>Logout</span>
-      </Button>
-    </>
+      <div className="border-t border-border my-2 pt-2">
+        <Button 
+          onClick={handleSignOut}
+          variant="ghost"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full justify-start text-destructive hover:bg-destructive/10"
+        >
+          <LogOut className="w-5 h-5" />
+          <span>Sign Out</span>
+        </Button>
+      </div>
+    </nav>
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Professional Financial Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 text-8xl text-white/2 font-bold">$</div>
-        <div className="absolute top-32 right-32 text-6xl text-white/2 font-bold">₿</div>
-        <div className="absolute bottom-40 left-40 text-7xl text-white/2 font-bold">€</div>
-        <div className="absolute bottom-20 right-20 text-5xl text-white/2 font-bold">¥</div>
-        <div className="absolute top-1/2 left-10 text-4xl text-white/2 font-bold">£</div>
-        <div className="absolute top-1/3 right-10 text-4xl text-white/2 font-bold">₹</div>
-      </div>
+    <div className="flex min-h-screen bg-background">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex md:flex-col md:w-64 lg:w-72 md:fixed md:inset-y-0 md:border-r md:border-border md:bg-muted/30">
+        <div className="flex items-center gap-3 px-6 py-8 border-b border-border">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground font-bold">
+            <TrendingUp className="w-6 h-6" />
+          </div>
+          <span className="text-lg font-semibold text-foreground">InvestPro</span>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto px-4 py-6">
+          <NavItems />
+        </div>
+      </aside>
 
-      <div className="flex relative z-10">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-          <div className="flex flex-col flex-grow bg-black/20 backdrop-blur-md border-r border-white/10">
-            <div className="flex items-center px-4 py-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                InvestPro
-              </span>
-            </div>
-            <nav className="flex-1 px-4 space-y-2">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 h-16 border-b border-border bg-background flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground font-bold">
+            <TrendingUp className="w-5 h-5" />
+          </div>
+          <span className="text-base font-semibold text-foreground">InvestPro</span>
+        </div>
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 px-0">
+            <div className="py-6 px-4">
               <NavItems />
-            </nav>
-          </div>
-        </div>
-
-        {/* Mobile Header */}
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                InvestPro
-              </span>
             </div>
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <Menu className="w-6 h-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 bg-black/90 backdrop-blur-md border-white/10">
-                <nav className="flex flex-col space-y-2 mt-8">
-                  <NavItems />
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 lg:ml-64">
-          <main className="px-4 py-8 lg:px-8 mt-16 lg:mt-0">
-            {/* Welcome Section */}
-            <div className="mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16 border-2 border-white/20">
-                    <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.full_name || 'User'} />
-                    <AvatarFallback className="bg-gradient-to-r from-cyan-400 to-purple-500 text-white text-lg">
-                      {profile.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h1 className="text-2xl font-bold text-white">Welcome back, {profile.full_name || 'User'}!</h1>
-                    <p className="text-gray-300">{profile.role === 'admin' ? 'Administrator' : 'Premium User'}</p>
-                  </div>
-                </div>
-                <Badge className="bg-gradient-to-r from-green-400 to-emerald-500 text-white border-0 mt-4 sm:mt-0">
-                  Account Active
-                </Badge>
-              </div>
-            </div>
-
-            {/* Balance Card */}
-            <Card className="mb-8 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-md border-white/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm mb-1">Current Balance</p>
-                    <p className="text-4xl font-bold text-white">${Number(profile.balance).toLocaleString()}</p>
-                  </div>
-                  <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-8 h-8 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Stats Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              {stats.map((stat, index) => (
-                <Card key={index} className="bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-gray-300 text-sm mb-1">{stat.title}</p>
-                        <p className="text-2xl font-bold text-white">{stat.value}</p>
-                      </div>
-                      <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center`}>
-                        <stat.icon className="w-6 h-6 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Action Button */}
-            <Card className="bg-white/5 backdrop-blur-md border-white/10">
-              <CardContent className="p-6 text-center">
-                <h3 className="text-xl font-semibold text-white mb-4">Ready to invest?</h3>
-                <p className="text-gray-300 mb-6">Start growing your portfolio with our professional investment tools.</p>
-                <Link href="/invest">
-                  <Button className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white border-0 px-8 py-3">
-                    <Plus className="w-5 h-5 mr-2" />
-                    Make a New Investment
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </main>
-        </div>
+          </SheetContent>
+        </Sheet>
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 md:ml-64 lg:ml-72">
+        <div className="pt-20 md:pt-0 px-4 md:px-8 py-8 md:py-10 max-w-7xl mx-auto w-full">
+          {/* Welcome Header */}
+          <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="w-14 h-14">
+                <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.full_name || 'User'} />
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+                  {profile.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Welcome back!</h1>
+                <p className="text-muted-foreground text-sm mt-1">{profile.full_name || 'User'} • {profile.role === 'admin' ? 'Administrator' : 'Premium Account'}</p>
+              </div>
+            </div>
+            <Badge className="w-fit" variant="outline">Account Active</Badge>
+          </div>
+
+          {/* Primary Balance Card */}
+          <Card className="mb-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                <div>
+                  <p className="text-sm text-muted-foreground font-medium mb-2">Current Account Balance</p>
+                  <p className="text-5xl font-bold text-foreground">${Number(profile.balance).toLocaleString()}</p>
+                </div>
+                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 border-2 border-primary/30">
+                  <DollarSign className="w-10 h-10 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {stats.map((stat, index) => (
+              <Card key={index} className="hover:border-primary/50 transition-colors duration-200">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground font-medium mb-2">{stat.title}</p>
+                      <p className="text-3xl font-bold text-foreground mb-2">{stat.value}</p>
+                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                    </div>
+                    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
+                      <stat.icon className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Investments Section */}
+          {investments.length > 0 && (
+            <Card className="mb-10">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl">Your Investments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-muted-foreground">Plan Type</th>
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-muted-foreground">Amount</th>
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-muted-foreground">Status</th>
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-muted-foreground">Return</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {investments.slice(0, 5).map((inv) => (
+                        <tr key={inv.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                          <td className="py-4 px-4 capitalize text-sm font-medium text-foreground">{inv.plan_type}</td>
+                          <td className="py-4 px-4 text-sm text-foreground font-medium">${Number(inv.amount).toLocaleString()}</td>
+                          <td className="py-4 px-4">
+                            <Badge variant={inv.status === 'active' ? 'default' : 'secondary'} className="text-xs capitalize">
+                              {inv.status}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4 text-right text-sm">
+                            <span className="font-medium text-green-600">{inv.returns_percentage || 0}%</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Call to Action */}
+          <Card>
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold text-foreground mb-3">Ready to Grow Your Portfolio?</h3>
+              <p className="text-muted-foreground mb-6">Start investing with our professional plans and watch your wealth grow</p>
+              <Link href="/invest">
+                <Button className="gap-2 px-8">
+                  <Plus className="w-4 h-4" />
+                  New Investment
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   )
 }

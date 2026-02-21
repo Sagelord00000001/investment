@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { signUp, signIn, resendConfirmation } from '@/lib/auth-simple'
+import { signUp, signIn, resendConfirmation } from '@/lib/auth'
 import { AlertCircle, CheckCircle, Mail } from 'lucide-react'
 
 interface AuthFormProps {
@@ -35,13 +35,15 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     try {
       const result = await signUp(email, password, fullName)
       
-      if (result.needsConfirmation) {
+      // Check if email confirmation is required
+      if (result.user?.confirmation_sent_at && !result.user?.email_confirmed_at) {
         setNeedsConfirmation(true)
         setConfirmationEmail(email)
-        setSuccess(result.message)
+        setSuccess('Account created! Please check your email to verify your account.')
       } else {
-        setSuccess('Account created successfully! You can now sign in.')
+        setSuccess('Account created successfully!')
         if (onSuccess) onSuccess()
+        // Auth provider will handle redirect via home page useEffect
       }
     } catch (err: any) {
       console.error('Signup error:', err)
@@ -65,6 +67,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       await signIn(email, password)
       setSuccess('Signed in successfully!')
       if (onSuccess) onSuccess()
+      // Auth provider will handle redirect via home page useEffect
     } catch (err: any) {
       console.error('Signin error:', err)
       setError(err.message || 'Failed to sign in')
